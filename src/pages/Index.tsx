@@ -1,8 +1,26 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Shield, Server, Database, AlertCircle } from "lucide-react";
+import { AddAssetDialog } from "@/components/AddAssetDialog";
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
+  const { toast } = useToast();
+
+  const handleGenerateReport = () => {
+    toast({
+      title: "Generating Report",
+      description: "Your report is being generated and will be ready shortly.",
+    });
+  };
+
+  const handleViewAllAssets = () => {
+    toast({
+      title: "Coming Soon",
+      description: "The full asset list view is under development.",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       {/* Header */}
@@ -66,13 +84,11 @@ const Index = () => {
       <div className="mb-8">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div className="flex flex-wrap gap-4">
-          <Button className="bg-purple-600 hover:bg-purple-700">
-            Add New Asset
-          </Button>
-          <Button variant="outline">
+          <AddAssetDialog />
+          <Button variant="outline" onClick={handleGenerateReport}>
             Generate Report
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleViewAllAssets}>
             View All Assets
           </Button>
         </div>
