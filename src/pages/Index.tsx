@@ -1,14 +1,23 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Shield, Server, Database, AlertCircle, Search, Filter, Download, RefreshCw } from "lucide-react";
+import { Shield, Server, Database, AlertCircle, Search, Filter, Download, RefreshCw, SortAsc, ArrowUpDown } from "lucide-react";
 import { AddAssetDialog } from "@/components/AddAssetDialog";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Index = () => {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState("all");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const handleGenerateReport = () => {
     toast({
@@ -31,24 +40,46 @@ const Index = () => {
     });
   };
 
+  const handleSortChange = () => {
+    setSortOrder(prev => prev === "asc" ? "desc" : "asc");
+    toast({
+      title: "Sorting Updated",
+      description: `Assets are now sorted in ${sortOrder === "asc" ? "descending" : "ascending"} order.`,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      {/* Header with Search */}
+      {/* Header with Search and Filters */}
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Security Asset Dashboard</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Monitor and manage your security assets</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
+        <div className="flex flex-col sm:flex-row items-center gap-2">
+          <div className="relative w-full sm:w-auto">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
             <Input
               placeholder="Search assets..."
-              className="pl-8 w-[250px]"
+              className="pl-8 w-full sm:w-[250px]"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="w-full sm:w-[150px]">
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="hardware">Hardware</SelectItem>
+              <SelectItem value="software">Software</SelectItem>
+              <SelectItem value="network">Network</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="icon" onClick={handleSortChange}>
+            <ArrowUpDown className="h-4 w-4" />
+          </Button>
           <Button variant="outline" size="icon" onClick={handleRefresh}>
             <RefreshCw className="h-4 w-4" />
           </Button>
@@ -57,7 +88,7 @@ const Index = () => {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="p-6 hover:shadow-lg transition-shadow">
+        <Card className="p-6 hover:shadow-lg transition-shadow duration-300 hover:scale-105 transform">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
               <Shield className="h-6 w-6 text-purple-600 dark:text-purple-300" />
@@ -70,7 +101,7 @@ const Index = () => {
           </div>
         </Card>
 
-        <Card className="p-6 hover:shadow-lg transition-shadow">
+        <Card className="p-6 hover:shadow-lg transition-shadow duration-300 hover:scale-105 transform">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
               <Server className="h-6 w-6 text-blue-600 dark:text-blue-300" />
@@ -83,7 +114,7 @@ const Index = () => {
           </div>
         </Card>
 
-        <Card className="p-6 hover:shadow-lg transition-shadow">
+        <Card className="p-6 hover:shadow-lg transition-shadow duration-300 hover:scale-105 transform">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
               <Database className="h-6 w-6 text-green-600 dark:text-green-300" />
@@ -96,7 +127,7 @@ const Index = () => {
           </div>
         </Card>
 
-        <Card className="p-6 hover:shadow-lg transition-shadow">
+        <Card className="p-6 hover:shadow-lg transition-shadow duration-300 hover:scale-105 transform">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-red-100 dark:bg-red-900 rounded-lg">
               <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-300" />
@@ -115,11 +146,11 @@ const Index = () => {
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
         <div className="flex flex-wrap gap-4">
           <AddAssetDialog />
-          <Button variant="outline" onClick={handleGenerateReport} className="gap-2">
+          <Button variant="outline" onClick={handleGenerateReport} className="gap-2 hover:bg-gray-100 dark:hover:bg-gray-800">
             <Download className="h-4 w-4" />
             Generate Report
           </Button>
-          <Button variant="outline" onClick={handleViewAllAssets} className="gap-2">
+          <Button variant="outline" onClick={handleViewAllAssets} className="gap-2 hover:bg-gray-100 dark:hover:bg-gray-800">
             <Filter className="h-4 w-4" />
             View All Assets
           </Button>
@@ -137,7 +168,10 @@ const Index = () => {
               { text: "Alert resolved: Server-DB2 patch status", time: "3 hours ago", type: "resolution" },
               { text: "Asset decommissioned: Legacy-Switch-01", time: "5 hours ago", type: "removal" }
             ].map((activity, index) => (
-              <div key={index} className="flex items-center justify-between py-2 border-b last:border-0 dark:border-gray-700">
+              <div 
+                key={index} 
+                className="flex items-center justify-between py-2 border-b last:border-0 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg px-4 transition-colors duration-200"
+              >
                 <div className="flex items-center gap-4">
                   <div className={`w-2 h-2 rounded-full ${
                     activity.type === 'addition' ? 'bg-green-600' :
